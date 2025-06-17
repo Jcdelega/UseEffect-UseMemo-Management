@@ -1,11 +1,12 @@
-import Timer from "./components/Timer"
+import Timer from "./components/Timer";
+import Form from "./components/Form";
 
 function App() {
 
   return (
-    <>
-      <Timer time={30} message="Your time is running out:"/>
-    </>
+    <div className="container-fluid text-center">
+      <Form/>
+    </div>
   )
 }
 

@@ -13,8 +13,13 @@ const Timer = ({time, message})=>{
     useEffect(secondaryEffect,[timer]);
 
     return (
-        <div>
-            <p className="text-black border p-5 rounded bg-warning">{message} {timer} left</p>
+        <div className="mx-auto">
+            <p className="text-black border px-auto py-4 rounded bg-warning">
+                {message} 
+                <strong>
+                    {timer}
+                </strong> seconds left
+            </p>
         </div>
     )
 }
