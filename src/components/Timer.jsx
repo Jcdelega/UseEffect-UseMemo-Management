@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 
 const Timer = ({time, message})=>{
-    const [timer, setTimer] = useState(time);
+    const [timer, setTimer] = useState(time || 0);
     
     const secondaryEffect = ()=>{
+        console.log(`Cambia estado${timer}`)
         if (timer > 0){
             setTimeout(()=>{
                 setTimer(timer => timer -1);
@@ -12,10 +13,12 @@ const Timer = ({time, message})=>{
     };
     useEffect(secondaryEffect,[timer]);
 
+    useEffect(()=>console.log(`Recibe  props ${time}`),[]);
+
     return (
-        <div className="mx-auto">
+        <div className="col-3">
             <p className="text-black border px-auto py-4 rounded bg-warning">
-                {message} 
+                {message}  
                 <strong>
                     {timer}
                 </strong> seconds left
