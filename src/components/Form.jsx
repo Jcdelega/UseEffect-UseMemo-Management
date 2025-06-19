@@ -1,35 +1,45 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Timer from './Timer';
 
-/* Filtrar tasks: Agrega un filtro que permita ver solo las tasks de cierta duración o aquellas que hayan sido agregadas recientemente.
-
-Persistencia de datos: Implementa la persistencia de datos utilizando localStorage para que las tasks no se pierdan cuando el navegador se recarga.
-
-Estilización: Añade algunos estilos CSS para que la interfaz sea más atractiva y fácil de usar. */
+// Filtrar tasks: Agrega un filtro que permita ver solo las tasks de cierta duración o aquellas que hayan sido agregadas recientemente.
 
 function Form() {
     const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState('');
     const [durationTime, setDurationTime] = useState('');
-    const [time, setTime] = useState(0);
+    const [firstTimeLoadingItems, setFirst] = useState(true);
 
+    const getFromLocalStorageHandler =()=>{
+        const tasksFromLocalStorage = JSON.parse(localStorage.getItem('Tasks'));
+        if(tasksFromLocalStorage) {
+            setTimeout(()=>{
+                setTasks(tasksFromLocalStorage)
+            },1000); 
+        }
+    };
     
-    
+    const setTasksToLocalStorage=()=>{
+        if(firstTimeLoadingItems){
+            setFirst(false);
+            return;
+        }else{
+            localStorage.setItem('Tasks', JSON.stringify(tasks));
+        }
+    }    
+
+    useEffect(setTasksToLocalStorage,[tasks, firstTimeLoadingItems])
+    useEffect(getFromLocalStorageHandler,[]);
+
+
     // Time calculated optimized using useMemo
     const calculatedTotalTime = useMemo(() => {
-        console.log("Calculating total time...");
         return tasks.reduce((total, task) => total + task.durationTime, 0);
     }, [tasks]);
     
     // This secondary effect update the title, every time a new task is added
     useEffect(() => {
         document.title = `Total: ${calculatedTotalTime} minutes`;
-        setTime(calculatedTotalTime);
     }, [tasks]);
-
-    useEffect(()=>{
-        setTime(calculatedTotalTime);
-    },[calculatedTotalTime]);
     
     // Function to add a new task
     const addNewTask = () => {
@@ -73,7 +83,7 @@ function Form() {
             <div className='row align-items-center justify-content-center'>
                 <ul className='list-group col-4 text-start'>
                     {tasks.map((task, index) => (
-                        <li className='list-group-item' key={index}><i class="bi bi-nut-fill"></i> <strong>{task.name}</strong></li>
+                        <li className='list-group-item' key={index}><i className="bi bi-nut-fill"></i> <strong>{task.name}</strong></li>
                     ))}
                 </ul>
                 <ul className='list-group col-2 text-start'>
@@ -83,7 +93,7 @@ function Form() {
                 </ul>
             </div>
             <h3 className='m-3' >Total time: {calculatedTotalTime} minutes</h3>
-            <Timer time={time} message="Your time is running out: "/>
+            <Timer timeLeftToDecrease={calculatedTotalTime} message="Your time is running out: "/>
         </section>
     );
 }

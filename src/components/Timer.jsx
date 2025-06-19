@@ -1,26 +1,34 @@
 import { useState, useEffect } from "react";
 
-const Timer = ({time, message})=>{
-    const [timer, setTimer] = useState(time || 0);
+const Timer = ({timeLeftToDecrease, message})=>{
+    const [timeLeft, setTimer] = useState(timeLeftToDecrease * 60);
     
+    const handlerTimeLeftToDecrease = ()=>{
+        const additionalTime = timeLeftToDecrease * 60;
+        setTimer(prevTimer => prevTimer + additionalTime);
+    }
     const secondaryEffect = ()=>{
-        console.log(`Cambia estado${timer}`)
-        if (timer > 0){
-            setTimeout(()=>{
-                setTimer(timer => timer -1);
-            },1000);
-        }
+        if (timeLeft <= 0) return;
+        const interval = setInterval(() => {
+            setTimer(prev => prev - 1); 
+        }, 1000);
+ 
+        return () => clearInterval(interval);
     };
-    useEffect(secondaryEffect,[timer]);
 
-    useEffect(()=>console.log(`Recibe  props ${time}`),[]);
+    useEffect(handlerTimeLeftToDecrease,[timeLeftToDecrease]);
+
+    useEffect(secondaryEffect,[timeLeft]);
+            
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
 
     return (
-        <div className="col-3">
-            <p className="text-black border px-auto py-4 rounded bg-warning">
-                {message}  
+        <div className="col-3 text-black border px-auto py-1 rounded bg-warning">
+            <p>{message}</p>
+            <p>  
                 <strong>
-                    {timer}
+                    {`${minutes}:${seconds < 10 ? '0' : ''}${seconds}`}
                 </strong> seconds left
             </p>
         </div>
