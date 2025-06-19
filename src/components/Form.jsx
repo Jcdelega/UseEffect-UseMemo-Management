@@ -8,6 +8,7 @@ function Form() {
     const [newTask, setNewTask] = useState('');
     const [durationTime, setDurationTime] = useState('');
     const [firstTimeLoadingItems, setFirst] = useState(true);
+    const [filter, setFilter] = useState('');
 
     const getFromLocalStorageHandler =()=>{
         const tasksFromLocalStorage = JSON.parse(localStorage.getItem('Tasks'));
@@ -27,9 +28,13 @@ function Form() {
         }
     }    
 
+    const filterTasksProcces=()=>{
+        return tasks.filter(task => task.durationTime <= filter );
+    };
+
     useEffect(setTasksToLocalStorage,[tasks, firstTimeLoadingItems])
     useEffect(getFromLocalStorageHandler,[]);
-
+    const filteredTasks = useMemo(filterTasksProcces,[tasks, filter])
 
     // Time calculated optimized using useMemo
     const calculatedTotalTime = useMemo(() => {
@@ -39,7 +44,7 @@ function Form() {
     // This secondary effect update the title, every time a new task is added
     useEffect(() => {
         document.title = `Total: ${calculatedTotalTime} minutes`;
-    }, [tasks]);
+    }, [tasks, calculatedTotalTime]);
     
     // Function to add a new task
     const addNewTask = () => {
@@ -52,6 +57,9 @@ function Form() {
             setNewTask('');
             setDurationTime('');
         }
+    };
+    const filterFunction = ()=>{
+        setTasks(filterTasksProcces);
     };
 
     return (
@@ -80,20 +88,48 @@ function Form() {
             </div>
 
             <h2 className='text-black'>Tasks</h2>
-            <div className='row align-items-center justify-content-center'>
-                <ul className='list-group col-4 text-start'>
-                    {tasks.map((task, index) => (
-                        <li className='list-group-item' key={index}><i className="bi bi-nut-fill"></i> <strong>{task.name}</strong></li>
-                    ))}
-                </ul>
-                <ul className='list-group col-2 text-start'>
-                    {tasks.map((task, index) => (
-                        <li className='list-group-item' key={index}>{task.durationTime} minutes</li>
-                    ))}
-                </ul>
+
+            <div className='col-6 row m-2 rounded-4 border p-4' >
+                <input 
+                    type="text"
+                    className='rounded-3 bg-primary-subtle text-black col-6'
+                    placeholder='Type a max duration to filter'
+                    value={filter}
+                    onChange={e=> setFilter(e.target.value)}
+                />
+                <button className='col-5 p-2 mx-3 text-primary-emphasis bg-primary-subtle ' onClick={filterFunction}>Filter by duration </button>
             </div>
+            {
+                tasks.length === 0 ?(
+                    <figure>
+                        <img 
+                            className='img'
+                            src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" 
+                            alt="Loader"
+                        />
+                    </figure>
+                )
+                :(
+                    <div className='row align-items-center justify-content-center'>
+                        <ul className='list-group col-4 text-start'>
+                            {tasks.map((task, index) => (
+                                <li className='list-group-item' key={index}><i className="bi bi-nut-fill"></i> <strong>{task.name}</strong></li>
+                            ))}
+                        </ul>
+                        <ul className='list-group col-2 text-start'>
+                            {tasks.map((task, index) => (
+                                <li className='list-group-item' key={index}>{task.durationTime} minutes</li>
+                            ))}
+                        </ul>
+                    </div>
+                )
+
+            }
+
             <h3 className='m-3' >Total time: {calculatedTotalTime} minutes</h3>
+
             <Timer timeLeftToDecrease={calculatedTotalTime} message="Your time is running out: "/>
+
         </section>
     );
 }
